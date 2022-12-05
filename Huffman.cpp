@@ -3,14 +3,14 @@
 #include <string>
 #include <vector>
 #include <iomanip>
-// For swap()
+// swap()
 #include <algorithm>
 
-// Global vectors to store characters and codes
+// global vectors to store characters and codes
 std::vector<std::string> characters;
 std::vector<std::string> codes;
 
-// Binary tree
+// binary tree
 // character -> character given in the freq.txt
 // data -> frequency given next to the character value given in freq.txt
 struct Node
@@ -41,7 +41,7 @@ void printLeafNodes(Node *root, std::string str)
     // node is null then we're done
     if (!root) return;
 
-    // if node is leaf node, push it to global vectors
+    // node is leaf node
     if ((root->left == NULL) && (root->right == NULL))
     {
         characters.push_back(root->character);
@@ -49,21 +49,17 @@ void printLeafNodes(Node *root, std::string str)
         return;
     }
 
-    // if left child exists, check for leaf
-    // recursively
-    // 0 is appended for every left-move
+    // check for left-leaves recursively
     if (root->left != NULL)
     {
         str.append("0");
         printLeafNodes(root->left, str);
     }
 
-    // Remove last element before going to right-side branch
+    // remove the last element before starting to right-side branch
     str.pop_back();
 
-    // if right child exists, check for leaf
-    // recursively
-    // 1 is appended for every left-move
+    // check for right-leaves recursively
     if (root->right != NULL)
     {
         str.append("1");
@@ -80,9 +76,6 @@ int main()
     std::vector<std::string> charvec;
     std::vector<int> freqvec;
 
-    // Takes each line as input string, splits it into 2 disregrading a space between
-    // the character and its frequency value
-    // The character and frequency are both pushed into their relevant vectors
     int pos = 0;
     while (getline(inputFile, tempStr))
     {
@@ -92,20 +85,19 @@ int main()
     }
     inputFile.close();
 
-    // Print given input letters
+    // print given input letters
     std::cout << "Input from 'freq.txt': " << std::endl;
     for (int i = 0; i < charvec.size(); i++) std::cout << std::setw(2) << charvec[i] << " ";
 
     std::cout << std::endl;
 
-    // Print given input letter frequencies
+    // print given input letter frequencies
     for (int i = 0; i < freqvec.size(); i++) std::cout << std::setw(2) << freqvec[i] << " ";
 
     std::cout << std::endl;
     std::cout << std::endl;
 
-    // Sorts the frequency and character vectors at the same time
-    // to preserve parallelism
+    // sorts the frequency and character vectors
     for (int i = 0; i < freqvec.size(); i++)
     {
         for (int j = 0; j < freqvec.size(); j++)
@@ -118,21 +110,17 @@ int main()
         }
     }
 
-    // Prints out the input from the file in sorted order
+    // prints out the input from the file in sorted order
     std::cout << "Sorted Input: " << std::endl;
-    for (int i = 0; i < charvec.size(); i++)
-    {
-        std::cout << std::setw(2) << charvec[i] << " ";
-    }
+    for (int i = 0; i < charvec.size(); i++) std::cout << std::setw(2) << charvec[i] << " ";
+    
     std::cout << std::endl;
-    for (int i = 0; i < freqvec.size(); i++)
-    {
-        std::cout << std::setw(2) << freqvec[i] << " ";
-    }
+
+    for (int i = 0; i < freqvec.size(); i++) std::cout << std::setw(2) << freqvec[i] << " ";
+    
     std::cout << std::endl;
     std::cout << std::endl;
 
-    // Fills up list of nodes with the sorted values of characters and frequencies
     std::vector<Node *> Nodes;
     for (int i = 0; i < freqvec.size(); i++)
     {
@@ -146,40 +134,34 @@ int main()
     for (int i = 0; i < freqvec.size(); i++)
     {
 
-        // Prints out each step of algorithm
-        for (int k = 0; k < Nodes.size(); k++)
-        {
-            std::cout << std::setw(2) << Nodes[k]->data << " ";
-        }
+        for (int k = 0; k < Nodes.size(); k++) std::cout << std::setw(2) << Nodes[k]->data << " ";
+        
         std::cout << std::endl;
 
-        // Create a node "temp" with frequency f(temp) = f(0) + f(1),
-        // temp's children are 0 and 1
+        // temprorary node
         Node *temp = new Node(Nodes[0]->data + Nodes[1]->data);
-
         temp->left = Nodes[0];
         temp->right = Nodes[1];
-
-        // Remove nodes 0 and 1 from the list of Nodes
+        // remove 0 and 1 
         Nodes.erase(Nodes.begin());
         Nodes.erase(Nodes.begin());
 
-        // If list becomes empty, push last node into L and we're done
+        // list is empty
         if (Nodes.size() == 0)
         {
             Nodes.push_back(temp);
             break;
         }
-        // Inserts temp node into correct position in Nodes list
+
+        // insert temproray node into the correct position in Nodes list
         for (int j = 0; j < Nodes.size(); j++)
         {
-            // If you find a node with a higher frequency in the list, place temp before it
             if (Nodes[j]->data > temp->data)
             {
                 Nodes.insert((Nodes.begin() + j), temp);
                 break;
             }
-            // Insert into back of the list if greater than all elements
+
             if (j == Nodes.size() - 1)
             {
                 Nodes.push_back(temp);
@@ -188,20 +170,15 @@ int main()
         }
     }
 
-    // Prints out last iteration of Nodes list, should only have one node left
-    for (int k = 0; k < Nodes.size(); k++)
-    {
-        std::cout << std::setw(2) << Nodes[k]->data << " ";
-    }
+    for (int k = 0; k < Nodes.size(); k++) std::cout << std::setw(2) << Nodes[k]->data << " ";
+    
     std::cout << std::endl;
 
-    // Prints out leaf nodes from left to right, keeping track of branches for encoding
-    // Also adds characters and codes to global vectors
     printLeafNodes(Nodes[0], "");
     std::cout << std::endl;
 
-    // Take global vectors of characters and their codes and order them according to their
-    // ASCII value
+
+    // bubble sort for the characters and their codes
     int min = 0;
     for (int i = 0; i < characters.size(); i++)
     {
@@ -219,7 +196,7 @@ int main()
         }
     }
 
-    // Open output file to write to
+    // outputting 
     std::ofstream outputFile("codetable.txt");
     if (!outputFile)
     {
@@ -227,8 +204,8 @@ int main()
         exit(1);
     }
 
-    // Print out ordered characters and codes
-    // Also write characters and their codes to the output file
+    // final print of the characters & codes
+    // (same as codetable.txt)
     std::cout << "Character   |   Code" << std::endl;
     for (int i = 0; i < characters.size(); i++)
     {
